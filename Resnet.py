@@ -1,4 +1,4 @@
-
+#!/usr/bin/env python
 # coding: utf-8
 
 # # Resnet
@@ -33,7 +33,7 @@
 # 
 # Keras makes these sorts of networks pretty easy to program.  To start with, let's apply this network to the CIFAR-10 classification problem, but we'll do it for all 10 classes.  All the non-model definition code should look the same as our previous example.   
 
-# In[ ]:
+# In[13]:
 
 
 import keras
@@ -56,7 +56,7 @@ y_test = keras.utils.to_categorical(y_test, N)
 # <img src=cifar_10_res_net.svg width=900/>
 # More concretely, the layers of this network up to (and including) the location of the star in the figure above, look like this.
 
-# In[ ]:
+# In[14]:
 
 
 import keras.layers as kl
@@ -91,62 +91,57 @@ for i in range(3):
 conv = kl.Conv2D(32,(3,3),padding='same',strides=2,kernel_regularizer=kr.l2(1e-4))(act1)
 bn = kl.BatchNormalization()(conv)
 act = kl.Activation('relu')(bn)
-
 conv = kl.Conv2D(32,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act)
 bn = kl.BatchNormalization()(conv)
 
 # Downsampling with strided 1x1 convolution
 act1_downsampled = kl.Conv2D(32,(1,1),padding='same',strides=2,kernel_regularizer=kr.l2(1e-4))(act1)
-
 # Downsampling skip layer
 skip_downsampled = kl.add([act1_downsampled,bn])
 act1 = kl.Activation('relu')(skip_downsampled)
 
-for i in range(2):
-    conv = kl.Conv2D(32,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act1)
+# This final layer is denoted by a star in the above figure
+for _ in range(2):
+    conv = kl.Conv2D(32, (3, 3), padding="same", kernel_regularizer=kr.l2(1e-4))(act1)
     bn = kl.BatchNormalization()(conv)
     act = kl.Activation('relu')(bn)
     
-    conv = kl.Conv2D(32,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act)
+    conv = kl.Conv2D(32, (3,3), padding='same', kernel_regularizer=kr.l2(1e-4))(act)
     bn = kl.BatchNormalization()(conv)
-
+    
     # Skip layer addition
     skip = kl.add([act1,bn])
-    act1 = kl.Activation('relu')(skip)  
-
+    act1 = kl.Activation('relu')(skip)
+    
 # Downsampling with strided convolution
-conv = kl.Conv2D(16,(3,3),padding='same',strides=2,kernel_regularizer=kr.l2(1e-4))(act1)
+conv = kl.Conv2D(64, (3,3), padding='same', strides=2, kernel_regularizer=kr.l2(1e-4))(act1)
 bn = kl.BatchNormalization()(conv)
 act = kl.Activation('relu')(bn)
-
-conv = kl.Conv2D(16,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act)
+conv = kl.Conv2D(64, (3,3), padding='same', kernel_regularizer=kr.l2(1e-4))(act)
 bn = kl.BatchNormalization()(conv)
 
 # Downsampling with strided 1x1 convolution
-act1_downsampled = kl.Conv2D(16,(1,1),padding='same',strides=2,kernel_regularizer=kr.l2(1e-4))(act1)
-
+act1_downsampled = kl.Conv2D(64,(1,1),padding='same',strides=2,kernel_regularizer=kr.l2(1e-4))(act1)
 # Downsampling skip layer
 skip_downsampled = kl.add([act1_downsampled,bn])
 act1 = kl.Activation('relu')(skip_downsampled)
 
-for i in range(2):
-    conv = kl.Conv2D(64,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act1)
+# This final layer is denoted by a star in the above figure
+for _ in range(2):
+    conv = kl.Conv2D(64, (3, 3), padding="same", kernel_regularizer=kr.l2(1e-4))(act1)
     bn = kl.BatchNormalization()(conv)
     act = kl.Activation('relu')(bn)
-    
-    conv = kl.Conv2D(64,(3,3),padding='same',kernel_regularizer=kr.l2(1e-4))(act)
+    conv = kl.Conv2D(64, (3,3), padding='same', kernel_regularizer=kr.l2(1e-4))(act)
     bn = kl.BatchNormalization()(conv)
-
+    
     # Skip layer addition
     skip = kl.add([act1,bn])
-    act1 = kl.Activation('relu')(skip)  
-
-# This final layer is denoted by a star in the above figure
+    act1 = kl.Activation('relu')(skip)
 
 
 # To ensure that we have the output shape that we expect at this stage, we can look at the shape of act1  
 
-# In[ ]:
+# In[15]:
 
 
 act1
@@ -154,7 +149,7 @@ act1
 
 # Which is an object of size 16x16x32, the correct size based on our chosen architecture (note the first question mark indicates an unknown number of input images: thus if we ran the model on a single photo, this would be a 1, if we ran it on the entire CIFAR training set at once it would be 50000).  As before, we can use this model for classification by doing global average pooling, then the softmax function.
 
-# In[ ]:
+# In[16]:
 
 
 gap = kl.GlobalAveragePooling2D()(act1)
@@ -163,7 +158,7 @@ final_dense = kl.Dense(N)(bn)
 softmax = kl.Activation('softmax')(final_dense)
 
 
-# In[ ]:
+# In[17]:
 
 
 import keras.models as km
@@ -230,3 +225,9 @@ model.fit(x_train, y_train,
 
 
 # Once your model is fitted, **adapt your class activation mapping routine to run on this more advanced architecture, and compute a few examples?  How do these activation maps differ from those computed for the smaller network?**
+
+# In[ ]:
+
+
+
+
